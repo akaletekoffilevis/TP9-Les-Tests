@@ -1,5 +1,7 @@
 # TP9 — Les Tests · TaskFlow
 
+[![Tests TP9](https://github.com/akaletekoffilevis/TP9-Les-Tests/actions/workflows/tests.yml/badge.svg)](https://github.com/akaletekoffilevis/TP9-Les-Tests/actions/workflows/tests.yml)
+
 ![Aperçu de la présentation](docs/apercu.png)
 
 Support illustré et code exécutable pour le TP9 « Les Tests ».
