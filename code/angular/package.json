@@ -1,0 +1,42 @@
+{
+  "name": "taskflow-angular-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mini application Angular TaskFlow pour le TP9 Les Tests",
+  "scripts": {
+    "start": "ng serve --port 4200",
+    "build": "ng build",
+    "test": "ng test",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  },
+  "dependencies": {
+    "@angular/common": "17.3.12",
+    "@angular/compiler": "17.3.12",
+    "@angular/core": "17.3.12",
+    "@angular/forms": "17.3.12",
+    "@angular/platform-browser": "17.3.12",
+    "@angular/platform-browser-dynamic": "17.3.12",
+    "@angular/router": "17.3.12",
+    "rxjs": "~7.8.1",
+    "tslib": "^2.6.3",
+    "zone.js": "~0.14.10"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "17.3.17",
+    "@angular/cli": "17.3.17",
+    "@angular/compiler-cli": "17.3.12",
+    "@types/jasmine": "~5.1.4",
+    "@types/node": "^20.14.0",
+    "cypress": "^13.15.0",
+    "jasmine-core": "~5.1.2",
+    "karma": "~6.4.3",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.1",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "mochawesome": "^7.1.3",
+    "start-server-and-test": "^2.0.8",
+    "typescript": "~5.4.5"
+  }
+}

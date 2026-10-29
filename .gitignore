@@ -1,0 +1,32 @@
+# Node / Angular
+node_modules/
+dist/
+coverage/
+.angular/
+*.tsbuildinfo
+
+# Cypress
+cypress/downloads/
+cypress/reports/
+cypress/screenshots/
+cypress/videos/
+
+# Maven / Java
+target/
+.mvn/apache-maven-*/
+*.class
+*.log
+
+# k6
+k6-summary.json
+
+# Éditeurs / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Python (outils de génération éventuels)
+__pycache__/
+*.pyc

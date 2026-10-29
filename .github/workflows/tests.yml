@@ -1,0 +1,329 @@
+name: Tests TP9
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      k6_vus:
+        description: "Utilisateurs virtuels pour le smoke test k6"
+        required: false
+        default: "2"
+      k6_duration:
+        description: "Durée du smoke test k6"
+        required: false
+        default: "5s"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tp9-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Test unitaire Angular (Jasmine + Karma)
+  # ---------------------------------------------------------------------------
+  angular-unit:
+    name: "1 · Angular — AuthService (unitaire)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: code/angular
+    env:
+      CYPRESS_INSTALL_BINARY: "0"
+      NG_CLI_ANALYTICS: "false"
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: code/angular/package-lock.json
+
+      - name: Installer les dépendances
+        run: npm ci --no-audit --no-fund
+
+      - name: Exécuter le test Angular
+        run: npm test -- --watch=false --browsers=ChromeHeadlessCI --code-coverage
+
+      - name: Publier la couverture Angular
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-authservice-coverage
+          path: code/angular/coverage/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 2. Test unitaire Spring — AuthService, cas valide
+  # ---------------------------------------------------------------------------
+  spring-authservice-valid:
+    name: "2 · Spring — AuthService · identifiants valides"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: code/spring-boot
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Exécuter le test unitaire ciblé
+        run: ./mvnw -B test -Dtest='AuthServiceTest#login_avecIdentifiantsValides_retourneUnJeton'
+
+      - name: Publier le rapport Surefire
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-authservice-valid-surefire
+          path: code/spring-boot/target/surefire-reports/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 3. Test unitaire Spring — AuthService, mot de passe invalide
+  # ---------------------------------------------------------------------------
+  spring-authservice-invalid:
+    name: "3 · Spring — AuthService · mot de passe invalide"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: code/spring-boot
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Exécuter le test unitaire ciblé
+        run: ./mvnw -B test -Dtest='AuthServiceTest#login_avecMotDePasseInvalide_leveUnauthorized'
+
+      - name: Publier le rapport Surefire
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-authservice-invalid-surefire
+          path: code/spring-boot/target/surefire-reports/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 4. Test d'intégration Spring — AuthController, login valide
+  # ---------------------------------------------------------------------------
+  spring-authcontroller-valid:
+    name: "4 · Spring — AuthController · login valide"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: code/spring-boot
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Exécuter le test d'intégration ciblé
+        run: >-
+          ./mvnw -B test-compile failsafe:integration-test failsafe:verify
+          -Dit.test='AuthControllerIT#login_identifiantsValides_retourne200EtLeDashboard'
+          -DfailIfNoTests=false
+
+      - name: Publier le rapport Failsafe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-authcontroller-valid-failsafe
+          path: code/spring-boot/target/failsafe-reports/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 5. Test d'intégration Spring — AuthController, login invalide
+  # ---------------------------------------------------------------------------
+  spring-authcontroller-invalid:
+    name: "5 · Spring — AuthController · login invalide"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: code/spring-boot
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Exécuter le test d'intégration ciblé
+        run: >-
+          ./mvnw -B test-compile failsafe:integration-test failsafe:verify
+          -Dit.test='AuthControllerIT#login_motDePasseInvalide_retourne401'
+          -DfailIfNoTests=false
+
+      - name: Publier le rapport Failsafe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-authcontroller-invalid-failsafe
+          path: code/spring-boot/target/failsafe-reports/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 6. Test E2E Cypress — parcours de connexion
+  # ---------------------------------------------------------------------------
+  cypress-e2e:
+    name: "6 · Cypress — connexion (E2E)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: code/angular
+    env:
+      NG_CLI_ANALYTICS: "false"
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: code/angular/package-lock.json
+
+      - name: Mettre en cache le binaire Cypress
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('code/angular/package-lock.json') }}
+
+      - name: Installer les dépendances
+        run: npm ci --no-audit --no-fund
+
+      - name: Démarrer Angular et exécuter Cypress
+        run: >-
+          npx start-server-and-test
+          "npm start"
+          http://localhost:4200
+          "cypress run --spec cypress/e2e/login.cy.ts"
+
+      - name: Publier les rapports Cypress
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-login-rapports
+          path: |
+            code/angular/cypress/reports/
+            code/angular/cypress/videos/
+            code/angular/cypress/screenshots/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 7. Test de charge k6 — smoke test contre un mock API
+  # ---------------------------------------------------------------------------
+  k6-smoke:
+    name: "7 · k6 — login (smoke)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Démarrer le mock et exécuter le smoke test
+        env:
+          VUS: ${{ github.event.inputs.k6_vus || '2' }}
+          DURATION: ${{ github.event.inputs.k6_duration || '5s' }}
+        run: |
+          node code/performance/mock-api.js > mock-api.log 2>&1 &
+          MOCK_PID=$!
+          trap 'kill "$MOCK_PID" 2>/dev/null || true' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3000/health >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          if ! curl -fsS http://127.0.0.1:3000/health >/dev/null; then
+            echo "Le mock API n'a pas démarré" >&2
+            cat mock-api.log >&2 || true
+            exit 1
+          fi
+
+          k6 run \
+            -e SMOKE=1 \
+            -e VUS="${VUS}" \
+            -e DURATION="${DURATION}" \
+            -e BASE_URL=http://127.0.0.1:3000 \
+            --summary-export=k6-summary.json \
+            code/performance/login-load-test.js
+
+      - name: Publier le résumé k6
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-login-summary
+          path: k6-summary.json
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # 8. Récapitulatif lisible dans l'onglet Summary
+  # ---------------------------------------------------------------------------
+  recap:
+    name: "8 · Récapitulatif"
+    if: always()
+    needs:
+      - angular-unit
+      - spring-authservice-valid
+      - spring-authservice-invalid
+      - spring-authcontroller-valid
+      - spring-authcontroller-invalid
+      - cypress-e2e
+      - k6-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Écrire le tableau de résultats
+        run: |
+          {
+            echo "## TP9 — Résultats des tests"
+            echo ""
+            echo "| # | Job | Résultat |"
+            echo "|---|---|---|"
+            echo "| 1 | Angular — AuthService | ${{ needs.angular-unit.result }} |"
+            echo "| 2 | Spring — AuthService · valide | ${{ needs.spring-authservice-valid.result }} |"
+            echo "| 3 | Spring — AuthService · invalide | ${{ needs.spring-authservice-invalid.result }} |"
+            echo "| 4 | Spring — AuthController · valide | ${{ needs.spring-authcontroller-valid.result }} |"
+            echo "| 5 | Spring — AuthController · invalide | ${{ needs.spring-authcontroller-invalid.result }} |"
+            echo "| 6 | Cypress — connexion E2E | ${{ needs.cypress-e2e.result }} |"
+            echo "| 7 | k6 — login smoke | ${{ needs.k6-smoke.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
