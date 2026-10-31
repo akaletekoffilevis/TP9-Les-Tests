@@ -2,29 +2,26 @@
 
 **AKALETE Koffi Levis** · 02 novembre 2026
 
-Dépôt GitHub : <https://github.com/akaletekoffilevis/TP9-Les-Tests>
+Dépôt GitHub : [https://github.com/akaletekoffilevis/TP9-Les-Tests](https://github.com/akaletekoffilevis/TP9-Les-Tests)
 
 ## Contenu du dossier
 
-| Fichier | Usage |
-|---|---|
-| `presentation/TP9_Les_Tests_Presentation_Illustree.pdf` | version à présenter / déposer |
-| `presentation/TP9_Les_Tests_Presentation_Illustree.pptx` | édition PowerPoint |
-| `presentation/TP9_Les_Tests_Presentation_Illustree.odp` | édition LibreOffice Impress |
-| `script/Script_Video_TP9_Tests_V3.md` | script de la vidéo (4 min 45) |
-| `code/` | code réel des exemples (Angular, Spring Boot, Cypress, k6) |
-| `.github/workflows/tests.yml` | un job CI par test + récapitulatif |
-| `README.md` | notice du dépôt et commandes |
+| Fichier                                                    | Usage                                                       |
+| ---------------------------------------------------------- | ----------------------------------------------------------- |
+| `presentation/TP9_Les_Tests_Presentation_Illustree.pdf`  | version à présenter / déposer                            |
+| `presentation/TP9_Les_Tests_Presentation_Illustree.pptx` | édition PowerPoint                                         |
+| `presentation/TP9_Les_Tests_Presentation_Illustree.odp`  | édition LibreOffice Impress                                |
+| `code/`                                                  | code réel des exemples (Angular, Spring Boot, Cypress, k6) |
+| `.github/workflows/tests.yml`                            | un job CI par test + récapitulatif                         |
+| `README.md`                                              | notice du dépôt et commandes                              |
 
-> Les trois fichiers de présentation sont identiques : **10 diapositives, 16:9, aucune note de présentateur**.
+> Les trois fichiers de présentation sont identiques : **10 diapositives**
 
 ## Ouvrir la présentation
 
 - Lecture : `presentation/TP9_Les_Tests_Presentation_Illustree.pdf`
 - Modification : `presentation/TP9_Les_Tests_Presentation_Illustree.odp` avec LibreOffice Impress
   (ou le `.pptx` avec PowerPoint / Google Slides)
-- Les polices utilisées sont **Lato** et **DejaVu Sans Mono** ; elles sont embarquées
-  dans le PDF. Sur une autre machine, installer Lato pour un rendu identique.
 
 ## Ce que couvre la présentation
 
@@ -51,10 +48,3 @@ npx cypress run
 # Performance
 k6 run code/performance/login-load-test.js
 ```
-
-## Avant de rendre
-
-- [ ] Enregistrer la vidéo (≤ 5 min) en suivant `script/Script_Video_TP9_Tests_V3.md`
-- [ ] Vérifier que la vidéo et le PDF sont accessibles
-- [ ] Conserver le nom de dossier `AKALETE_Koffi_Levis`
-- [ ] Déposer avant le **lundi 02 novembre 2026 à 21h00 (GMT)**

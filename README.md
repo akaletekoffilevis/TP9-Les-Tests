@@ -6,8 +6,7 @@
 
 Support illustré et code exécutable pour le TP9 « Les Tests ».
 
-- **Présentation** : 10 diapositives 16:9, sans notes de présentateur.
-- **Vidéo** : script de 4 min 45 dans [`script/Script_Video_TP9_Tests_V3.md`](script/Script_Video_TP9_Tests_V3.md).
+- **Présentation** : 10 diapositives 
 - **Code** : mini-application **TaskFlow** (Angular + Spring Boot) avec tests unitaires, intégration, E2E et charge.
 - **CI** : un job GitHub Actions visible par test, plus un récapitulatif.
 
@@ -21,16 +20,16 @@ Le scénario Gherkin est dans [`code/features/login.feature`](code/features/logi
 
 Le workflow [`.github/workflows/tests.yml`](.github/workflows/tests.yml) se déclenche à chaque `push`, `pull_request` ou manuellement.
 
-| # | Job | Ce qui est exécuté |
-|---|---|---|
-| 1 | Angular — AuthService (unitaire) | `auth.service.spec.ts` avec Jasmine + Karma |
-| 2 | Spring — AuthService · identifiants valides | `AuthServiceTest#login_avecIdentifiantsValides_retourneUnJeton` |
-| 3 | Spring — AuthService · mot de passe invalide | `AuthServiceTest#login_avecMotDePasseInvalide_leveUnauthorized` |
-| 4 | Spring — AuthController · login valide | `AuthControllerIT#login_identifiantsValides_retourne200EtLeDashboard` |
-| 5 | Spring — AuthController · login invalide | `AuthControllerIT#login_motDePasseInvalide_retourne401` |
-| 6 | Cypress — connexion (E2E) | `cypress/e2e/login.cy.ts` sur l'application Angular |
-| 7 | k6 — login (smoke) | `login-load-test.js` avec 2 VU pendant 5 s contre un mock API |
-| 8 | Récapitulatif | tableau des résultats dans l'onglet **Summary** |
+| # | Job                                            | Ce qui est exécuté                                                    |
+| - | ---------------------------------------------- | ----------------------------------------------------------------------- |
+| 1 | Angular — AuthService (unitaire)              | `auth.service.spec.ts` avec Jasmine + Karma                           |
+| 2 | Spring — AuthService · identifiants valides  | `AuthServiceTest#login_avecIdentifiantsValides_retourneUnJeton`       |
+| 3 | Spring — AuthService · mot de passe invalide | `AuthServiceTest#login_avecMotDePasseInvalide_leveUnauthorized`       |
+| 4 | Spring — AuthController · login valide       | `AuthControllerIT#login_identifiantsValides_retourne200EtLeDashboard` |
+| 5 | Spring — AuthController · login invalide     | `AuthControllerIT#login_motDePasseInvalide_retourne401`               |
+| 6 | Cypress — connexion (E2E)                     | `cypress/e2e/login.cy.ts` sur l'application Angular                   |
+| 7 | k6 — login (smoke)                            | `login-load-test.js` avec 2 VU pendant 5 s contre un mock API         |
+| 8 | Récapitulatif                                 | tableau des résultats dans l'onglet **Summary**                  |
 
 Chaque job de test est indépendant : un échec n'empêche pas les autres de s'exécuter. Les rapports (couverture, Surefire, Failsafe, Cypress, k6) sont publiés en artefacts.
 
@@ -81,7 +80,6 @@ k6 run code/performance/login-load-test.js
 .
 ├── .github/workflows/tests.yml      # 8 jobs CI
 ├── presentation/                    # PDF, PPTX, ODP (10 diapositives)
-├── script/                          # script vidéo V3
 ├── docs/                            # notice du livrable
 └── code/
     ├── angular/                     # application Angular + Jasmine/Karma + Cypress
@@ -98,4 +96,4 @@ Ce dépôt est un **support pédagogique exécutable**, pas une application de p
 - le mock k6 vérifie le scénario de charge, pas la logique métier Spring ;
 - les tests Spring couvrent le service et le contrôleur, pas l'ensemble de l'application.
 
-La présentation complète et le script vidéo expliquent la démarche.
+La présentation complète explique la démarche.
